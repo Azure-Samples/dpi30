@@ -1,0 +1,21 @@
+# Powershell Test for ARM Templates
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: AzurePowerShell@5
+  inputs:
+    azureSubscription: 'cabattag - Inside Sales - Microsoft Azure Internal Consumption(e5dd0609-8a2e-477f-bc64-b40332c4839d)'
+    ScriptType: 'FilePath'
+    ScriptPath: './tests/azure-pipelines.ps1'
+    errorActionPreference: 'continue'
+    azurePowerShellVersion: 'LatestVersion'
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'NUnit'
+    testResultsFiles: '**/Test-*.XML'
+    failTaskOnFailedTests: true

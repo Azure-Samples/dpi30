@@ -1,0 +1,184 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "0.0.0.1",
+    "metadata": {
+        "comments": "This template can be used to quickly deploy a simplified Data Platform, it will deploy a Data Factory, Blob Storage account, and SQL Azure Database. This allows for a simplified starting point to do analytics on your data.",
+        "author": "Cameron Battagler"
+    },
+    "parameters": {
+        "azureSqlServerName": {
+            "type": "String",
+            "metadata": {
+                "description": "Azure SQL Logical Server Name (Will become the fully qualified domain name of your Database)"
+            }
+        },
+        "azureSqlServerAdminLogin": {
+            "type": "String",
+            "metadata": {
+                "description": "Azure SQL Logical Server Admin User Name (will be used for initial login to your Database)"
+            }
+        },
+        "azureSqlServerAdminPassword": {
+            "type": "SecureString",
+            "metadata": {
+                "description": "Azure SQL Logical Server Admin Password (will be used for initial login to your Database)"
+            }
+        },
+        "azureSqlDatabaseName": {
+            "type": "String",
+            "metadata": {
+                "description": "Azure SQL Database Name (Will be displayed in SSMS and to connect with other tools)"
+            }
+        },
+        "storageAccountName": {
+            "type": "String",
+            "metadata": {
+                "description": "The storage account name for your blob storage (Will become part of the fully qualified domain name of your blob storage)"
+            }
+        },
+        "dataFactoryName": {
+            "type": "String",
+            "metadata": {
+                "description": "The data facory name (will be displayed in the Azure Portal)"
+            }
+        },
+        "dataFactoryRegion": {
+            "type": "String",
+            "allowedValues": [
+                "East US",
+                "Southeast Asia",
+                "North Europe"
+            ],
+            "defaultValue": "East US",
+            "metadata": {
+                "description": "Data Factory Region, this is limited to three regions currently as Data Factory Region doesn't matter. Data Factory compute is deployed at the data sink."
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "Deploy the Data Factory, Use East US no matter what as Data Factory location does not matter",
+            "type": "Microsoft.DataFactory/factories",
+            "apiVersion": "2018-06-01",
+            "name": "[parameters('dataFactoryName')]",
+            "location": "[parameters('dataFactoryRegion')]",
+            "tags": {
+                "dpi30": "True"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {}
+        },
+        {
+            "comments": "Deploy the SQL Azure Logical server to hold our Database",
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2015-05-01-preview",
+            "name": "[parameters('azureSqlServerName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "dpi30": "True"
+            },
+            "kind": "v12.0",
+            "properties": {
+                "administratorLogin": "[parameters('azureSqlServerAdminLogin')]",
+                "administratorLoginPassword": "[parameters('azureSqlServerAdminPassword')]",
+                "version": "12.0"
+            }
+        },
+        {
+            "comments": "Deploy the storage account, in this situation we are using normal blob storage to allow for Azure SQL Bulk Insert",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "dpi30": "True"
+            },
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "isHnsEnabled": false,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "enabled": true
+                        },
+                        "blob": {
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "comments": "Deploy a 2 core Gen 5 Hyperscale database to hold our BI data",
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[concat(parameters('azureSqlServerName'), '/', parameters('azureSqlDatabaseName'))]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('azureSqlServerName'))]"
+            ],
+            "tags": {
+                "dpi30": "True"
+            },
+            "sku": {
+                "name": "HS_Gen5",
+                "tier": "Hyperscale",
+                "family": "Gen5",
+                "capacity": 2
+            },
+            "kind": "v12.0,user,vcore",
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "maxSizeBytes": 268435456000,
+                "zoneRedundant": false,
+                "licenseType": "BasePrice",
+                "readScale": "Disabled",
+                "readReplicaCount": 0
+            }
+        },
+        {
+            "comments": "Firewall rules to Allow Azure services to access the DW",
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2015-05-01-preview",
+            "name": "[concat(parameters('azureSqlServerName'), '/AllowAllWindowsAzureIps')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('azureSqlServerName'))]"
+            ],
+            "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "0.0.0.0"
+            }
+        },
+        {
+            "comments": "Enable blob access to our Storage Account",
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2019-04-01",
+            "name": "[concat(parameters('storageAccountName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "properties": {
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        }
+    ]
+}
