@@ -35,6 +35,8 @@ npm install
 * Test the code
 <!-- Add steps to run the tests suite and/or manually test -->
 ```
+#If editing the templates run this script to Pester Test
+./tests/azure-pipelines.ps1
 ```
 
 ## What to Check

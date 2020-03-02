@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 "current location: $(Get-Location)"
 "script root: $PSScriptRoot"
 "retrieve available modules"

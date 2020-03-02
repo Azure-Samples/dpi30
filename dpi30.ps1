@@ -4,7 +4,11 @@ DPi30 Decision and Deployment Tree
 
 .Description
 Script that will walk you through determining the proper DPi30 Template and help you deploy it step by step.
+
 #>
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 #Included files to make our script significantly more readable.
 $IncludeScripts = 
@@ -23,17 +27,6 @@ foreach ($script in $IncludeScripts) {
         Write-Error "Error loading $script" -ErrorAction Stop   
     }
 }
-#try {
-#    . ("$PSScriptRoot/includes/validation.ps1")
-#    . ("$PSScriptRoot/includes/determinetemplate.ps1")
-#    . ("$PSScriptRoot/includes/deployresourcegroup.ps1")
-#    . ("$PSScriptRoot/includes/deploymoderndatawarehouse.ps1")
-#    . ("$PSScriptRoot/includes/deploysimple.ps1")
-#    . ("$PSScriptRoot/includes/deploymanagedinstance.ps1")
-#}
-#catch {
-#    Write-Error "Error while loading supporting PowerShell Scripts" -ErrorAction Stop
-#}
 
 function DeployTemplate {
     # Moved initial deployment tree to secondary function to allow for easier expansion if we have more templates in the future

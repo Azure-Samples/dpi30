@@ -6,6 +6,9 @@ DPi30 Managed Instance Template Deployment
 Function that will walk through all the required information to deploy the managed instance template
 #>
 
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 $managedinstancedescription = @"
     * SQL Managed Instance (General Purpose, Gen 5 4 Cores)
     * Azure Storage Account (Blob Storage)

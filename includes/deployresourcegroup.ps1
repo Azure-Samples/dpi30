@@ -5,6 +5,9 @@ DPi30 Deploy Resource Group
 .Description
 Initial Resource Group deployment that determines geography and region and finally creates the resource group where all Azure resources will be deployed.
 #>
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 function DeployResourceGroup {
     # Function to gather information and deploy the resource group
     

@@ -6,6 +6,9 @@ DPi30 Simple Template Deployment
 Function that will walk through all the required information to deploy the simple template
 #>
 
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 $simpledescription = @"
     * SQL Azure Hyperscale Database (Gen 5 2 Cores, 1 readable secondary)
     * Azure Storage Account (Blob Storage)

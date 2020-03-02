@@ -5,6 +5,9 @@ DPi30 Determine Template Function
 .Description
 Determines the best template to deploy based on the questions asked.
 #>
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 function DetermineTemplate {
     # Questionaire to determine best fit, Current logic is if you answer yes at least twice you should use Modern Data Warehouse, otherwise we check if you want to use any DBMI features
     $dwscore = 0

@@ -6,6 +6,9 @@ DPi30 Deploy Modern Data Warehouse
 Function that will walk through all the required information to deploy the modern data warehouse template
 #>
 
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 $datawarehousedescription = @"
     * Azure Data Factory
     * Azure Data Lake Gen 2

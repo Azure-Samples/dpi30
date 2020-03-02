@@ -6,6 +6,9 @@ DPi30 Validation Functions
 Functions to validate the naming conventions and requirements of resources created by the DPi30
 #>
 
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 ### Validation Functions ###
 function ResourceGroupNameValidation {
     Param(
